@@ -9,7 +9,7 @@ public class Server {
         ServerSocket serverSocket = new ServerSocket(15123);
         Socket socket = serverSocket.accept();
         System.out.println("Accepted connection : " + socket);
-        File transferFile = new File ("/home/matjaz/Programming/File-transfer/src/Document.doc");
+        File transferFile = new File ("/home/matjaz/Programming/File-transfer/Data/Document");
         byte [] bytearray  = new byte [(int)transferFile.length()];
         FileInputStream fin = new FileInputStream(transferFile);
         BufferedInputStream bin = new BufferedInputStream(fin);

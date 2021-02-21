@@ -12,14 +12,13 @@ public class Client {
         Socket socket = new Socket("192.168.0.105",15123);
         byte [] bytearray  = new byte [filesize];
         InputStream is = socket.getInputStream();
-        FileOutputStream fos = new FileOutputStream("/home/matjaz/Programming/File-transfer/src/copy.doc");
+        FileOutputStream fos = new FileOutputStream("/home/matjaz/Programming/File-transfer/Data/Copy");
         BufferedOutputStream bos = new BufferedOutputStream(fos);
         bytesRead = is.read(bytearray,0,bytearray.length);
         currentTot = bytesRead;
 
         do {
-            bytesRead =
-                    is.read(bytearray, currentTot, (bytearray.length-currentTot));
+            bytesRead = is.read(bytearray, currentTot, (bytearray.length-currentTot));
             if(bytesRead >= 0) currentTot += bytesRead;
         } while(bytesRead > -1);
 
