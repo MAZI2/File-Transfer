@@ -1,0 +1,3 @@
+/home/matjaz/Programming/File-transfer/Data/Document
+/home/matjaz/Programming/File-transfer/Data/New Folder/rrr
+/home/matjaz/Programming/File-transfer/Data/Copy
