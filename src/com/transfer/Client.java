@@ -1,37 +1,41 @@
 package com.transfer;
 
-import java.net.*;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.net.Socket;
 
 public class Client {
+    private static DataOutputStream dataOutputStream = null;
+    private static DataInputStream dataInputStream = null;
 
-    public static void main (String [] args ) throws IOException, ClassNotFoundException {
-        int filesize=1022386;
-        int bytesRead;
-        int currentTot = 0;
-        Socket socket = new Socket("192.168.0.105",15123);
+    public static void main(String[] args) {
+        try(Socket socket = new Socket("localhost",5000)) {
+            dataInputStream = new DataInputStream(socket.getInputStream());
+            dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
+            sendFile("/home/matjaz/Programming/File-transfer/Data/Copy");
+            sendFile("/home/matjaz/Programming/File-transfer/Data/Document");
+            sendFile("/home/matjaz/Programming/File-transfer/Data/rrr");
 
-        InputStream in = socket.getInputStream();
+            dataInputStream.close();
+            dataInputStream.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
-        byte [] bytearray  = new byte [filesize];
+    private static void sendFile(String path) throws Exception{
+        int bytes = 0;
+        File file = new File(path);
+        FileInputStream fileInputStream = new FileInputStream(file);
 
-        FileOutputStream fos = new FileOutputStream("/home/matjaz/Programming/File-transfer/Received/FileCache");
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        bytesRead = in.read(bytearray,0,bytearray.length);
-        currentTot = bytesRead;
-
-        do {
-            bytesRead =
-                    in.read(bytearray, currentTot, (bytearray.length-currentTot));
-            if(bytesRead >= 0) currentTot += bytesRead;
-        } while(bytesRead > -1);
-
-        bos.write(bytearray, 0 , currentTot);
-        bos.flush();
-        bos.close();
-        socket.close();
+        // send file size
+        dataOutputStream.writeLong(file.length());
+        // break file into chunks
+        byte[] buffer = new byte[4*1024];
+        while ((bytes=fileInputStream.read(buffer))!=-1){
+            dataOutputStream.write(buffer,0,bytes);
+            dataOutputStream.flush();
+        }
+        fileInputStream.close();
     }
 }

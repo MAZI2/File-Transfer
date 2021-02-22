@@ -1,58 +1,45 @@
 package com.transfer;
 
-import java.net.*;
-import java.io.*;
-import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class Server {
+    private static DataOutputStream dataOutputStream = null;
+    private static DataInputStream dataInputStream = null;
 
-    public static void main (String [] args ) throws IOException, InterruptedException {
-        ServerSocket serverSocket = new ServerSocket(15123);
-        Socket socket = serverSocket.accept();
-        System.out.println("Accepted connection : " + socket);
+    public static void main(String[] args) {
+        try(ServerSocket serverSocket = new ServerSocket(5000)){
+            System.out.println("listening to port:5000");
+            Socket clientSocket = serverSocket.accept();
+            System.out.println(clientSocket+" connected.");
+            dataInputStream = new DataInputStream(clientSocket.getInputStream());
+            dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
 
-        File fout = new File("cache.txt");
-        FileOutputStream fos = new FileOutputStream(fout);
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-        Scanner lines = new Scanner(fout);
+            receiveFile("/home/matjaz/Programming/File-transfer/Received/Copy");
+            receiveFile("/home/matjaz/Programming/File-transfer/Received/Document");
+            receiveFile("/home/matjaz/Programming/File-transfer/Received/rrr");
 
-        listFiles("/home/matjaz/Programming/File-transfer/Data", socket, bw);
-        bw.close();
-        sendFiles("/home/matjaz/Programming/File-transfer/cache.txt", socket);
-        while(lines.hasNextLine()) {
-            sendFiles(lines.nextLine(), socket);
-        }
-        socket.close();
-    }
-
-
-    private static void listFiles(String startDir, Socket socket, BufferedWriter bw) throws IOException {
-        File dir = new File(startDir);
-        File[] files = dir.listFiles();
-
-        if(files != null && files.length > 0) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    listFiles(file.getAbsolutePath(), socket, bw);
-                } else {
-                    bw.write(file.getAbsolutePath());
-                    bw.newLine();
-                }
-            }
+            dataInputStream.close();
+            dataOutputStream.close();
+            clientSocket.close();
+        } catch (Exception e){
+            e.printStackTrace();
         }
     }
-    private static void sendFiles(String filePath, Socket socket) throws IOException {
-        File transferFile = new File (filePath);
-        byte [] bytearray  = new byte [(int)transferFile.length()];
-        FileInputStream fin = new FileInputStream(transferFile);
-        BufferedInputStream bin = new BufferedInputStream(fin);
-        bin.read(bytearray,0,bytearray.length);
-        OutputStream os = socket.getOutputStream();
-        System.out.println("Sending Files...");
-        os.write(bytearray,0,bytearray.length);
-        os.flush();
 
-        System.out.println("File transfer complete");
+    private static void receiveFile(String fileName) throws Exception{
+        int bytes = 0;
+        FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+
+        long size = dataInputStream.readLong();     // read file size
+        byte[] buffer = new byte[4*1024];
+        while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
+            fileOutputStream.write(buffer,0,bytes);
+            size -= bytes;      // read upto file size
+        }
+        fileOutputStream.close();
     }
 }
