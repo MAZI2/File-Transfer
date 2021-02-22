@@ -1,9 +1,6 @@
 package com.transfer;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -13,7 +10,7 @@ public class Server {
     private static DataOutputStream dataOutputStream = null;
     private static DataInputStream dataInputStream = null;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         try(ServerSocket serverSocket = new ServerSocket(5000)){ //listening to port:5000
             Socket clientSocket = serverSocket.accept();
 
@@ -31,6 +28,29 @@ public class Server {
             dataOutputStream.close();
         } catch (Exception e){
             e.printStackTrace();
+        }
+
+        File fout = new File("ServerSave");
+        FileOutputStream fos = new FileOutputStream(fout);
+
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+        listFiles(receivePath, bw);
+        bw.close();
+    }
+
+    public static void listFiles(String startDir, BufferedWriter bw) throws IOException {
+        File dir = new File(startDir);
+        File[] files = dir.listFiles();
+
+        if (files != null && files.length > 0) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    listFiles(file.getAbsolutePath(), bw);
+                } else {
+                    bw.write(file.getAbsolutePath());
+                    bw.newLine();
+                }
+            }
         }
     }
 
