@@ -12,6 +12,8 @@ public class Client {
             dataInputStream = new DataInputStream(socket.getInputStream());
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
+            dataInputStream
+
             sendFile("/home/matjaz/Programming/File-transfer/Data/Copy");
             sendFile("/home/matjaz/Programming/File-transfer/Data/Document");
             sendFile("/home/matjaz/Programming/File-transfer/Data/rrr");
