@@ -24,7 +24,7 @@ public class Server {
 
             for(int i = 0; i < number; i++) {
                 String filename = dataInputStream.readUTF(); //get file name
-                receiveFile(filename, receivePath + dataInputStream.readUTF()); //get relative path and append it ot receive path
+                receiveFile(filename, receivePath + dataInputStream.readUTF());
             }
 
             dataInputStream.close();
@@ -35,13 +35,13 @@ public class Server {
     }
 
     private static void receiveFile(String fileName, String path) throws Exception{
-        System.out.println(path);
-        System.out.println(path + fileName);
         int bytes = 0;
+
         File dir = new File(path);
         if (!dir.exists()){
             dir.mkdirs();
         }
+
         FileOutputStream fileOutputStream = new FileOutputStream(path + fileName); //output to file
 
         long size = dataInputStream.readLong(); //get size of file

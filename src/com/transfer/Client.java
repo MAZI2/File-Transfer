@@ -36,6 +36,21 @@ public class Client {
         }
     }
 
+    public static void listFiles(String startDir) {
+        File dir = new File(startDir);
+        File[] files = dir.listFiles();
+
+        if (files != null && files.length > 0) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    listFiles(file.getAbsolutePath());
+                } else {
+                    filesArr.add(file);
+                }
+            }
+        }
+    }
+
     private static void sendFile(String path) throws Exception{
         int bytes = 0;
         File file = new File(path);
@@ -51,18 +66,4 @@ public class Client {
         fileInputStream.close();
     }
 
-    public static void listFiles(String startDir) {
-        File dir = new File(startDir);
-        File[] files = dir.listFiles();
-
-        if (files != null && files.length > 0) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    listFiles(file.getAbsolutePath());
-                } else {
-                    filesArr.add(file);
-                }
-            }
-        }
-    }
 }
