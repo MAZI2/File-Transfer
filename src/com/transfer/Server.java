@@ -2,6 +2,7 @@ package com.transfer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,8 +22,9 @@ public class Server {
 
             int number = dataInputStream.readInt(); //number of files to be received
 
-            for(int i = 0; i < number; i++) { //for number of files to be received get file name and append to receivePath
-                receiveFile(receivePath + dataInputStream.readUTF());
+            for(int i = 0; i < number; i++) {
+                String filename = dataInputStream.readUTF(); //get file name
+                receiveFile(filename, receivePath + dataInputStream.readUTF()); //get relative path and append it ot receive path
             }
 
             dataInputStream.close();
@@ -32,9 +34,15 @@ public class Server {
         }
     }
 
-    private static void receiveFile(String fileName) throws Exception{
+    private static void receiveFile(String fileName, String path) throws Exception{
+        System.out.println(path);
+        System.out.println(path + fileName);
         int bytes = 0;
-        FileOutputStream fileOutputStream = new FileOutputStream(fileName); //output to file
+        File dir = new File(path);
+        if (!dir.exists()){
+            dir.mkdirs();
+        }
+        FileOutputStream fileOutputStream = new FileOutputStream(path + fileName); //output to file
 
         long size = dataInputStream.readLong(); //get size of file
         byte[] buffer = new byte[4*1024];

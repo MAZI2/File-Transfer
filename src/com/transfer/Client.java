@@ -22,7 +22,8 @@ public class Client {
             dataOutputStream.writeInt(filesArr.size()); //send number of sent files
 
             for(int i = 0 ; i < filesArr.size();i++){
-                dataOutputStream.writeUTF(filesArr.get(i).getName()); //send names of sent files
+                dataOutputStream.writeUTF(filesArr.get(i).getName()); //send file name
+                dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(sendPath, "").replace(filesArr.get(i).getName(), "")); //send relative path
                 dataOutputStream.flush();
 
                 sendFile(filesArr.get(i).getAbsolutePath());
