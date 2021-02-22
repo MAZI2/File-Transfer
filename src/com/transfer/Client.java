@@ -1,31 +1,67 @@
 package com.transfer;
 
-import java.net.*;
 import java.io.*;
+import java.net.Socket;
+import java.util.ArrayList;
 
 public class Client {
+    private static final String sendPath= "/home/matjaz/Programming/File-transfer/Data/";
 
-    public static void main (String [] args ) throws IOException {
-        int filesize=1022386;
-        int bytesRead;
-        int currentTot = 0;
-        Socket socket = new Socket("192.168.0.105",15123);
-        byte [] bytearray  = new byte [filesize];
-        InputStream is = socket.getInputStream();
-        FileOutputStream fos = new FileOutputStream("/home/matjaz/Programming/File-transfer/src/copy.doc");
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        bytesRead = is.read(bytearray,0,bytearray.length);
-        currentTot = bytesRead;
+    private static DataOutputStream dataOutputStream = null;
+    private static DataInputStream dataInputStream = null;
+    private static ArrayList<File> filesArr = new ArrayList<File>();
 
-        do {
-            bytesRead =
-                    is.read(bytearray, currentTot, (bytearray.length-currentTot));
-            if(bytesRead >= 0) currentTot += bytesRead;
-        } while(bytesRead > -1);
+    public static void main(String[] args) {
+        try(Socket socket = new Socket("localhost",5000)) {
+            dataInputStream = new DataInputStream(socket.getInputStream());
+            dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
-        bos.write(bytearray, 0 , currentTot);
-        bos.flush();
-        bos.close();
-        socket.close();
+            dataOutputStream.flush();
+
+            listFiles(sendPath); //scan directory and add non directory files to ArrayList files
+            dataOutputStream.writeInt(filesArr.size()); //send number of sent files
+
+            for(int i = 0 ; i < filesArr.size();i++){
+                dataOutputStream.writeUTF(filesArr.get(i).getName()); //send names of sent files
+                dataOutputStream.flush();
+
+                sendFile(filesArr.get(i).getAbsolutePath());
+            }
+
+            dataInputStream.close();
+            dataOutputStream.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private static void sendFile(String path) throws Exception{
+        int bytes = 0;
+        File file = new File(path);
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        dataOutputStream.writeLong(file.length()); //send file size
+
+        byte[] buffer = new byte[4*1024]; //buffer for file pieces
+        while ((bytes=fileInputStream.read(buffer))!=-1){
+            dataOutputStream.write(buffer,0,bytes);
+            dataOutputStream.flush();
+        }
+        fileInputStream.close();
+    }
+
+    public static void listFiles(String startDir) {
+        File dir = new File(startDir);
+        File[] files = dir.listFiles();
+
+        if (files != null && files.length > 0) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    listFiles(file.getAbsolutePath());
+                } else {
+                    filesArr.add(file);
+                }
+            }
+        }
     }
 }
