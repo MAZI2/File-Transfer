@@ -17,7 +17,14 @@ public class Server {
             dataInputStream = new DataInputStream(clientSocket.getInputStream());
             dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
 
+            int delete = dataInputStream.readInt();
             int number = dataInputStream.readInt(); //number of files to be received
+
+            for(int i = 0; i < delete; i++) {
+                File toDelete= new File(receivePath + dataInputStream.readUTF());
+                System.out.println("Deleting: " + toDelete.getName());
+                toDelete.delete();
+            }
 
             for(int i = 0; i < number; i++) {
                 String filename = dataInputStream.readUTF(); //get file name
