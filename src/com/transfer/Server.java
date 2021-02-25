@@ -49,6 +49,7 @@ public class Server {
                 receiveFile(filename, receivePath + relativePath);
                 bw.write(receivePath + relativePath + filename);
                 bw.newLine();
+                bw.flush();
             }
 
             //SENDER PART

@@ -64,12 +64,14 @@ public class Client {
             }
 
             for(int i = 0; i < number; i++) {
+                System.out.println("writing");
                 String filename = dataInputStream.readUTF(); //get file name
                 String relativePath = dataInputStream.readUTF();
                 System.out.println("Receiving: " + filename);
                 receiveFile(filename, sendPath + relativePath);
                 bw.write(sendPath + relativePath + filename);
                 bw.newLine();
+                bw.flush();
             }
 
             dataInputStream.close();
