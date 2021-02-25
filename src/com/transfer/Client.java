@@ -22,6 +22,7 @@ public class Client {
             dataInputStream = new DataInputStream(socket.getInputStream());
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
+            //SENDER PART
             dataOutputStream.flush();
 
             File save = new File("ClientSave");
@@ -64,10 +65,12 @@ public class Client {
 
             for(int i = 0; i < number; i++) {
                 String filename = dataInputStream.readUTF(); //get file name
+                String relativePath = dataInputStream.readUTF();
                 System.out.println("Receiving: " + filename);
-                receiveFile(filename, sendPath + dataInputStream.readUTF());
+                receiveFile(filename, sendPath + relativePath);
+                bw.write(sendPath + relativePath + filename);
+                bw.newLine();
             }
-            listFiles(sendPath, bw);
 
             dataInputStream.close();
             dataOutputStream.close();

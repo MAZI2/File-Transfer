@@ -25,6 +25,14 @@ public class Server {
             dataInputStream = new DataInputStream(clientSocket.getInputStream());
             dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
 
+            //RECEIVER PART
+            File save = new File("ServerSave");
+
+            checkForDeleted(save);
+
+            FileOutputStream fos = new FileOutputStream(save, true);
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+
             int delete = dataInputStream.readInt();
             int number = dataInputStream.readInt(); //number of files to be received
 
@@ -36,24 +44,22 @@ public class Server {
 
             for(int i = 0; i < number; i++) {
                 String filename = dataInputStream.readUTF(); //get file name
+                String relativePath = dataInputStream.readUTF();
                 System.out.println("Receiving: " + filename);
-                receiveFile(filename, receivePath + dataInputStream.readUTF());
+                receiveFile(filename, receivePath + relativePath);
+                bw.write(receivePath + relativePath + filename);
+                bw.newLine();
             }
 
             //SENDER PART
             dataOutputStream.flush();
 
-            File save = new File("ServerSave");
             Scanner scanner = new Scanner(save);
             while (scanner.hasNextLine()) {
                 saves.add(scanner.nextLine());
             }
 
-            checkForDeleted(save);
             dataOutputStream.writeInt(toRemove.size());
-
-            FileOutputStream fos = new FileOutputStream(save, true);
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 
             listFiles(receivePath, bw); //scan directory and add non directory files to ArrayList files
             dataOutputStream.writeInt(filesArr.size()); //send number of sent files
