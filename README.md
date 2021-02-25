@@ -4,7 +4,10 @@
 - [X] Multiple file transfer
 - [X] Scan directory
 - [X] Clone directory with all subdirectories
-- [ ] Create two way communication / sync
+- [X] Create two way communication / sync
+- [ ] Add files to list on receive so that they dont get sent again
+- [ ] Delete directories
+- [ ] Automatically begin listening again
 - [ ] Option for one way
 - [ ] Make it work outside LAN
 - [ ] Web interface
