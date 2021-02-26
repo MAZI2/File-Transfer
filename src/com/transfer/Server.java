@@ -75,7 +75,10 @@ public class Server {
                 dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(receivePath, "").replace(filesArr.get(i).getName(), "")); //send relative path
                 dataOutputStream.flush();
 
-                sendFile(filesArr.get(i).getAbsolutePath());
+                File check = new File(filesArr.get(i).getAbsolutePath());
+                if (!check.isDirectory()) {
+                    sendFile(filesArr.get(i).getAbsolutePath());
+                }
             }
 
             dataInputStream.close();
@@ -123,6 +126,9 @@ public class Server {
             for (File file : files) {
                 if (file.isDirectory()) {
                     listFiles(file.getAbsolutePath(), bw);
+                    System.out.println("Added folder: " + file.getName());
+                    bw.write(file.getAbsolutePath());
+                    bw.newLine();
                 } else {
                     filesArr.add(file);
                     System.out.println("Added: " + file.getName());
