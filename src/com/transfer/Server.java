@@ -45,7 +45,6 @@ public class Server {
             for(int i = 0; i < number; i++) {
                 String filename = dataInputStream.readUTF(); //get file name
                 String relativePath = dataInputStream.readUTF();
-                System.out.println("Receiving: " + filename);
                 receiveFile(filename, receivePath + relativePath);
                 bw.write(receivePath + relativePath + filename);
                 bw.newLine();
@@ -53,8 +52,6 @@ public class Server {
             }
 
             //SENDER PART
-            dataOutputStream.flush();
-
             Scanner scanner = new Scanner(save);
             while (scanner.hasNextLine()) {
                 saves.add(scanner.nextLine());
@@ -101,7 +98,6 @@ public class Server {
             if (Files.exists(path)) {
                 bw.write(line + System.getProperty("line.separator"));
             } else {
-                System.out.println("Removing: " + line);
                 toRemove.add(line);
             }
         }
@@ -126,15 +122,11 @@ public class Server {
             for (File file : files) {
                 if (file.isDirectory()) {
                     listFiles(file.getAbsolutePath(), bw);
-                    System.out.println("Added folder: " + file.getName());
-                    bw.write(file.getAbsolutePath());
-                    bw.newLine();
                 } else {
                     filesArr.add(file);
-                    System.out.println("Added: " + file.getName());
-                    bw.write(file.getAbsolutePath());
-                    bw.newLine();
                 }
+                bw.write(file.getAbsolutePath());
+                bw.newLine();
             }
         }
     }
@@ -157,6 +149,7 @@ public class Server {
         }
         fileOutputStream.close();
     }
+
     private static void sendFile(String path) throws Exception{
         int bytes = 0;
         File file = new File(path);

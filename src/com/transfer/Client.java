@@ -23,8 +23,6 @@ public class Client {
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
             //SENDER PART
-            dataOutputStream.flush();
-
             File save = new File("ClientSave");
             Scanner scanner = new Scanner(save);
             while (scanner.hasNextLine()) {
@@ -67,10 +65,8 @@ public class Client {
             }
 
             for(int i = 0; i < number; i++) {
-                System.out.println("writing");
                 String filename = dataInputStream.readUTF(); //get file name
                 String relativePath = dataInputStream.readUTF();
-                System.out.println("Receiving: " + filename);
                 receiveFile(filename, sendPath + relativePath);
                 bw.write(sendPath + relativePath + filename);
                 bw.newLine();
@@ -98,7 +94,6 @@ public class Client {
             if (Files.exists(path)) {
                 bw.write(line + System.getProperty("line.separator"));
             } else {
-                System.out.println("Removing: " + line);
                 toRemove.add(line);
             }
         }
@@ -123,15 +118,11 @@ public class Client {
             for (File file : files) {
                 if (file.isDirectory()) {
                     listFiles(file.getAbsolutePath(), bw);
-                    System.out.println("Added folder: " + file.getAbsolutePath());
-                    bw.write(file.getAbsolutePath());
-                    bw.newLine();
                 } else {
                     filesArr.add(file);
-                    System.out.println("Added: " + file.getName());
-                    bw.write(file.getAbsolutePath());
-                    bw.newLine();
                 }
+                bw.write(file.getAbsolutePath());
+                bw.newLine();
             }
         }
     }
@@ -170,5 +161,4 @@ public class Client {
         }
         fileInputStream.close();
     }
-
 }
