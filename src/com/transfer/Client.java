@@ -44,13 +44,18 @@ public class Client {
             }
 
             for (int i = 0 ; i < filesArr.size();i++) {
-                dataOutputStream.writeUTF(filesArr.get(i).getName()); //send file name
-                dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(sendPath, "").replace(filesArr.get(i).getName(), "")); //send relative path
-                dataOutputStream.flush();
 
                 File check = new File(filesArr.get(i).getAbsolutePath());
+                System.out.println(filesArr.get(i).getAbsolutePath());
+
                 if (!check.isDirectory()) {
+                    dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(sendPath, "").replace("/" + filesArr.get(i).getName(), "/")); //send relative path
+                    dataOutputStream.writeUTF(filesArr.get(i).getName()); //send file name
+                    dataOutputStream.flush();
                     sendFile(filesArr.get(i).getAbsolutePath());
+                } else {
+                    dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(sendPath, "")); //send relative path
+                    dataOutputStream.flush();
                 }
             }
 
@@ -118,9 +123,8 @@ public class Client {
             for (File file : files) {
                 if (file.isDirectory()) {
                     listFiles(file.getAbsolutePath(), bw);
-                } else {
-                    filesArr.add(file);
                 }
+                filesArr.add(file);
                 bw.write(file.getAbsolutePath());
                 bw.newLine();
             }

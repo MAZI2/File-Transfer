@@ -25,39 +25,18 @@ public class Server {
             dataInputStream = new DataInputStream(clientSocket.getInputStream());
             dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
 
-            //RECEIVER PART
-            File save = new File("ServerSave");
-
-            checkForDeleted(save);
-
-            FileOutputStream fos = new FileOutputStream(save, true);
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-
-            int delete = dataInputStream.readInt();
-            int number = dataInputStream.readInt(); //number of files to be received
-
-            for(int i = 0; i < delete; i++) {
-                File toDelete= new File(receivePath + dataInputStream.readUTF());
-                System.out.println("Deleting: " + toDelete.getName());
-                toDelete.delete();
-            }
-
-            for(int i = 0; i < number; i++) {
-                String filename = dataInputStream.readUTF(); //get file name
-                String relativePath = dataInputStream.readUTF();
-                receiveFile(filename, receivePath + relativePath);
-                bw.write(receivePath + relativePath + filename);
-                bw.newLine();
-                bw.flush();
-            }
-
             //SENDER PART
+            File save = new File("ServerSave");
             Scanner scanner = new Scanner(save);
             while (scanner.hasNextLine()) {
                 saves.add(scanner.nextLine());
             }
 
+            checkForDeleted(save);
             dataOutputStream.writeInt(toRemove.size());
+
+            FileOutputStream fos = new FileOutputStream(save, true);
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 
             listFiles(receivePath, bw); //scan directory and add non directory files to ArrayList files
             dataOutputStream.writeInt(filesArr.size()); //send number of sent files
@@ -76,6 +55,34 @@ public class Server {
                 if (!check.isDirectory()) {
                     sendFile(filesArr.get(i).getAbsolutePath());
                 }
+            }
+
+            //RECEIVER PART
+            int delete = dataInputStream.readInt();
+            int number = dataInputStream.readInt(); //number of files to be received
+
+            for(int i = 0; i < delete; i++) {
+                File toDelete= new File(receivePath + dataInputStream.readUTF());
+                System.out.println("Deleting: " + toDelete.getName());
+                toDelete.delete();
+            }
+
+            for(int i = 0; i < number; i++) {
+                String relativePath = dataInputStream.readUTF();
+                File check = new File(receivePath + relativePath);
+                if (check.isDirectory()) {
+                    String filename = dataInputStream.readUTF(); //get file name
+                    receiveFile(filename, receivePath + relativePath);
+                    bw.write(receivePath + relativePath + filename);
+                } else {
+                    File dir = new File(receivePath + relativePath);
+                    if (!dir.exists()){
+                        dir.mkdirs();
+                    }
+                    bw.write(receivePath + relativePath);
+                }
+                bw.newLine();
+                bw.flush();
             }
 
             dataInputStream.close();
