@@ -47,17 +47,17 @@ public class Server {
             }
 
             for (int i = 0 ; i < filesArr.size();i++){
-                dataOutputStream.writeUTF(filesArr.get(i).getName()); //send file name
-                dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(receivePath, "").replace(filesArr.get(i).getName(), "")); //send relative path
+                File check = new File(filesArr.get(i).getAbsolutePath());
+
+                dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(receivePath, "")); //send relative path
                 dataOutputStream.flush();
 
-                File check = new File(filesArr.get(i).getAbsolutePath());
                 if (!check.isDirectory()) {
                     sendFile(filesArr.get(i).getAbsolutePath());
                 }
             }
 
-            //RECEIVER PART
+            // RECEIVER PART
             int delete = dataInputStream.readInt();
             int number = dataInputStream.readInt(); //number of files to be received
 
@@ -68,19 +68,17 @@ public class Server {
             }
 
             for(int i = 0; i < number; i++) {
-                String relativePath = dataInputStream.readUTF();
-                File check = new File(receivePath + relativePath);
-                if (check.isDirectory()) {
-                    String filename = dataInputStream.readUTF(); //get file name
-                    receiveFile(filename, receivePath + relativePath);
-                    bw.write(receivePath + relativePath + filename);
+                String filePath = dataInputStream.readUTF();
+                File check = new File(receivePath + filePath);
+                if (!check.isDirectory()) {
+                    receiveFile(receivePath + filePath);
                 } else {
-                    File dir = new File(receivePath + relativePath);
+                    File dir = new File(receivePath + filePath);
                     if (!dir.exists()){
                         dir.mkdirs();
                     }
-                    bw.write(receivePath + relativePath);
                 }
+                bw.write(receivePath + filePath);
                 bw.newLine();
                 bw.flush();
             }
@@ -129,24 +127,18 @@ public class Server {
             for (File file : files) {
                 if (file.isDirectory()) {
                     listFiles(file.getAbsolutePath(), bw);
-                } else {
-                    filesArr.add(file);
                 }
+                filesArr.add(file);
                 bw.write(file.getAbsolutePath());
                 bw.newLine();
             }
         }
     }
 
-    private static void receiveFile(String fileName, String path) throws Exception{
+    private static void receiveFile(String path) throws Exception{
         int bytes = 0;
 
-        File dir = new File(path);
-        if (!dir.exists()){
-            dir.mkdirs();
-        }
-
-        FileOutputStream fileOutputStream = new FileOutputStream(path + fileName); //output to file
+        FileOutputStream fileOutputStream = new FileOutputStream(path); //output to file
 
         long size = dataInputStream.readLong(); //get size of file
         byte[] buffer = new byte[4*1024];

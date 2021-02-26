@@ -44,18 +44,13 @@ public class Client {
             }
 
             for (int i = 0 ; i < filesArr.size();i++) {
-
                 File check = new File(filesArr.get(i).getAbsolutePath());
-                System.out.println(filesArr.get(i).getAbsolutePath());
+
+                dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(sendPath, "")); //send relative path
+                dataOutputStream.flush();
 
                 if (!check.isDirectory()) {
-                    dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(sendPath, "").replace("/" + filesArr.get(i).getName(), "/")); //send relative path
-                    dataOutputStream.writeUTF(filesArr.get(i).getName()); //send file name
-                    dataOutputStream.flush();
                     sendFile(filesArr.get(i).getAbsolutePath());
-                } else {
-                    dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(sendPath, "")); //send relative path
-                    dataOutputStream.flush();
                 }
             }
 
@@ -70,10 +65,17 @@ public class Client {
             }
 
             for(int i = 0; i < number; i++) {
-                String filename = dataInputStream.readUTF(); //get file name
-                String relativePath = dataInputStream.readUTF();
-                receiveFile(filename, sendPath + relativePath);
-                bw.write(sendPath + relativePath + filename);
+                String filePath = dataInputStream.readUTF();
+                File check = new File(sendPath + filePath);
+                if (!check.isDirectory()) {
+                    receiveFile(sendPath + filePath);
+                } else {
+                    File dir = new File(sendPath + filePath);
+                    if (!dir.exists()){
+                        dir.mkdirs();
+                    }
+                }
+                bw.write(sendPath + filePath);
                 bw.newLine();
                 bw.flush();
             }
@@ -82,7 +84,6 @@ public class Client {
             dataOutputStream.close();
 
             bw.close();
-
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -131,15 +132,10 @@ public class Client {
         }
     }
 
-    private static void receiveFile(String fileName, String path) throws Exception{
+    private static void receiveFile(String path) throws Exception{
         int bytes = 0;
 
-        File dir = new File(path);
-        if (!dir.exists()){
-            dir.mkdirs();
-        }
-
-        FileOutputStream fileOutputStream = new FileOutputStream(path + fileName); //output to file
+        FileOutputStream fileOutputStream = new FileOutputStream(path); //output to file
 
         long size = dataInputStream.readLong(); //get size of file
         byte[] buffer = new byte[4*1024];
