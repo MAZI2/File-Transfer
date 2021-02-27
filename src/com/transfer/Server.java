@@ -14,9 +14,6 @@ public class Server {
 
     private static DataOutputStream dataOutputStream = null;
     private static DataInputStream dataInputStream = null;
-    private static ArrayList<File> filesArr = new ArrayList<File>();
-    private static ArrayList<String> saves = new ArrayList<String>();
-    private static ArrayList<String> toRemove = new ArrayList<String>();
 
     public static void main(String[] args) throws IOException {
         try(ServerSocket serverSocket = new ServerSocket(5000)){ //listening to port:5000
@@ -25,23 +22,14 @@ public class Server {
             dataInputStream = new DataInputStream(clientSocket.getInputStream());
             dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
 
-            //RECEIVER PART
+            //SENDER PART
             File save = new File("ServerSave");
 
-            Sender.checkForDeleted(save, toRemove);
+            Sender sender = new Sender();
+            BufferedWriter bw = sender.Send(dataOutputStream, receivePath, save);
 
-            FileOutputStream fos = new FileOutputStream(save, true);
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-
+            //RECEIVER PART
             Receiver.Receive(dataInputStream, receivePath, bw);
-
-            //SENDER PART
-            Scanner scanner = new Scanner(save);
-            while (scanner.hasNextLine()) {
-                saves.add(scanner.nextLine());
-            }
-
-            Sender.Send(dataOutputStream, receivePath, save, bw, filesArr, saves, toRemove);
 
             dataInputStream.close();
             dataOutputStream.close();

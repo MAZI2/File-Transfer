@@ -15,24 +15,25 @@ public class Receiver {
         }
 
         for(int i = 0; i < number; i++) {
-            String filename = dataInputStream.readUTF(); //get file name
-            String relativePath = dataInputStream.readUTF();
-            receiveFile(dataInputStream, filename, directory + relativePath);
-            bw.write(directory + relativePath + filename);
+            String filePath = dataInputStream.readUTF();
+            if (dataInputStream.readUTF() == "file") {
+                receiveFile(dataInputStream, directory + filePath);
+            } else {
+                File dir = new File(directory + filePath);
+                if (!dir.exists()){
+                    dir.mkdirs();
+                }
+            }
+            bw.write(directory + filePath);
             bw.newLine();
             bw.flush();
         }
     }
 
-    private static void receiveFile(DataInputStream dataInputStream, String fileName, String path) throws Exception {
+    private static void receiveFile(DataInputStream dataInputStream, String path) throws Exception {
         int bytes = 0;
 
-        File dir = new File(path);
-        if (!dir.exists()){
-            dir.mkdirs();
-        }
-
-        FileOutputStream fileOutputStream = new FileOutputStream(path + fileName); //output to file
+        FileOutputStream fileOutputStream = new FileOutputStream(path); //output to file
 
         long size = dataInputStream.readLong(); //get size of file
         byte[] buffer = new byte[4*1024];

@@ -8,10 +8,21 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Sender {
+    ArrayList<File> filesArr = new ArrayList<File>();
+    ArrayList<String> saves = new ArrayList<String>();
+    ArrayList<String> toRemove = new ArrayList<String>();
 
-    public static void Send(DataOutputStream dataOutputStream, String directory, File save, BufferedWriter bw, ArrayList<File> filesArr, ArrayList<String> saves, ArrayList<String> toRemove) throws Exception {
+    public BufferedWriter Send(DataOutputStream dataOutputStream, String directory, File save) throws Exception {
+        Scanner scanner = new Scanner(save);
+        while (scanner.hasNextLine()) {
+            saves.add(scanner.nextLine());
+        }
 
+        checkForDeleted(save, toRemove);
         dataOutputStream.writeInt(toRemove.size());
+
+        FileOutputStream fos = new FileOutputStream(save, true);
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 
         listFiles(directory, bw, filesArr, saves); //scan directory and add non directory files to ArrayList files
         dataOutputStream.writeInt(filesArr.size()); //send number of sent files
@@ -22,18 +33,23 @@ public class Sender {
         }
 
         for (int i = 0; i < filesArr.size(); i++) {
-            dataOutputStream.writeUTF(filesArr.get(i).getName()); //send file name
-            dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(directory, "").replace(filesArr.get(i).getName(), "")); //send relative path
+            File check = new File(filesArr.get(i).getAbsolutePath());
+
+
+            dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(directory, "")); //send relative path
             dataOutputStream.flush();
 
-            File check = new File(filesArr.get(i).getAbsolutePath());
             if (!check.isDirectory()) {
+                dataOutputStream.writeUTF("file");
                 sendFile(dataOutputStream, filesArr.get(i).getAbsolutePath());
+            } else {
+                dataOutputStream.writeUTF("directory");
             }
         }
+        return bw;
     }
 
-    public static void checkForDeleted(File save, ArrayList<String> toRemove) throws IOException {
+    public void checkForDeleted(File save, ArrayList<String> toRemove) throws IOException {
         Scanner dirs = new Scanner(save);
         File tempFile = new File("TempFile.txt");
         BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
@@ -53,7 +69,7 @@ public class Sender {
         tempFile.renameTo(save);
     }
 
-    public static void listFiles(String startDir, BufferedWriter bw, ArrayList<File> filesArr, ArrayList<String> saves) throws IOException {
+    public void listFiles(String startDir, BufferedWriter bw, ArrayList<File> filesArr, ArrayList<String> saves) throws IOException {
         File dir = new File(startDir);
 
         FileFilter filter = new FileFilter() {
@@ -69,16 +85,15 @@ public class Sender {
             for (File file : files) {
                 if (file.isDirectory()) {
                     listFiles(file.getAbsolutePath(), bw, filesArr, saves);
-                } else {
-                    filesArr.add(file);
                 }
+                filesArr.add(file);
                 bw.write(file.getAbsolutePath());
                 bw.newLine();
             }
         }
     }
 
-    private static void sendFile(DataOutputStream dataOutputStream, String path) throws Exception{
+    private void sendFile(DataOutputStream dataOutputStream, String path) throws Exception{
         int bytes = 0;
         File file = new File(path);
         FileInputStream fileInputStream = new FileInputStream(file);
