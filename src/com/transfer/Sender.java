@@ -1,5 +1,6 @@
 package com.transfer;
 
+import javax.sound.midi.SysexMessage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,13 +19,13 @@ public class Sender {
             saves.add(scanner.nextLine());
         }
 
-        checkForDeleted(save, toRemove);
+        checkForDeleted(save);
         dataOutputStream.writeInt(toRemove.size());
 
         FileOutputStream fos = new FileOutputStream(save, true);
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 
-        listFiles(directory, bw, filesArr, saves); //scan directory and add non directory files to ArrayList files
+        listFiles(directory, bw); //scan directory and add non directory files to ArrayList files
         dataOutputStream.writeInt(filesArr.size()); //send number of sent files
 
         for (int i = 0; i < toRemove.size(); i++) {
@@ -32,9 +33,8 @@ public class Sender {
             dataOutputStream.flush();
         }
 
-        for (int i = 0; i < filesArr.size(); i++) {
+        for (int i = filesArr.size() - 1; i >= 0; i--) {
             File check = new File(filesArr.get(i).getAbsolutePath());
-
 
             dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(directory, "")); //send relative path
             dataOutputStream.flush();
@@ -43,13 +43,13 @@ public class Sender {
                 dataOutputStream.writeUTF("file");
                 sendFile(dataOutputStream, filesArr.get(i).getAbsolutePath());
             } else {
-                dataOutputStream.writeUTF("directory");
+                dataOutputStream.writeUTF("dir");
             }
         }
         return bw;
     }
 
-    public void checkForDeleted(File save, ArrayList<String> toRemove) throws IOException {
+    public void checkForDeleted(File save) throws IOException {
         Scanner dirs = new Scanner(save);
         File tempFile = new File("TempFile.txt");
         BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
@@ -69,26 +69,21 @@ public class Sender {
         tempFile.renameTo(save);
     }
 
-    public void listFiles(String startDir, BufferedWriter bw, ArrayList<File> filesArr, ArrayList<String> saves) throws IOException {
+    public void listFiles(String startDir, BufferedWriter bw) throws IOException {
         File dir = new File(startDir);
 
-        FileFilter filter = new FileFilter() {
-            @Override
-            public boolean accept(File dir) {
-                return !saves.stream().anyMatch(dir.getAbsolutePath()::contains);
-            }
-        };
-
-        File[] files = dir.listFiles(filter);
+        File[] files = dir.listFiles();
 
         if (files != null && files.length > 0) {
             for (File file : files) {
                 if (file.isDirectory()) {
-                    listFiles(file.getAbsolutePath(), bw, filesArr, saves);
+                    listFiles(file.getAbsolutePath(), bw);
                 }
-                filesArr.add(file);
-                bw.write(file.getAbsolutePath());
-                bw.newLine();
+                if (!saves.contains(file.getAbsolutePath())) {
+                    filesArr.add(file);
+                    bw.write(file.getAbsolutePath());
+                    bw.newLine();
+                }
             }
         }
     }

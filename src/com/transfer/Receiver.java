@@ -16,7 +16,8 @@ public class Receiver {
 
         for(int i = 0; i < number; i++) {
             String filePath = dataInputStream.readUTF();
-            if (dataInputStream.readUTF() == "file") {
+
+            if (dataInputStream.readUTF().equals("file")) {
                 receiveFile(dataInputStream, directory + filePath);
             } else {
                 File dir = new File(directory + filePath);
