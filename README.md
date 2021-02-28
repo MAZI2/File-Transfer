@@ -7,5 +7,5 @@
 - [X] Create two way communication / sync
 - [ ] Automatically begin listening again
 - [ ] Option for one way
-- [ ] Make it work outside LAN
 - [ ] Web interface
+- [ ] Make it work outside LAN
