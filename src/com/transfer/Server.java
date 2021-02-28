@@ -3,11 +3,6 @@ package com.transfer;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Server {
     private static final String receivePath = "/home/matjaz/Programming/File-transfer/Received/";
