@@ -11,6 +11,7 @@ public class Client {
 
     public static void main(String[] args) {
         try (Socket socket = new Socket("localhost",5000)) {
+
             dataInputStream = new DataInputStream(socket.getInputStream());
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
 

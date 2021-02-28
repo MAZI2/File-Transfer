@@ -8,34 +8,34 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Sender {
-    ArrayList<File> filesArr = new ArrayList<File>();
-    ArrayList<String> saves = new ArrayList<String>();
-    ArrayList<String> toRemove = new ArrayList<String>();
+    private ArrayList<File> filesArr = new ArrayList<File>();
+    private ArrayList<String> saves = new ArrayList<String>();
+    private ArrayList<String> toRemove = new ArrayList<String>();
 
     public BufferedWriter Send(DataOutputStream dataOutputStream, String directory, File save) throws Exception {
         Scanner scanner = new Scanner(save);
         while (scanner.hasNextLine()) {
-            saves.add(scanner.nextLine());
+            saves.add(scanner.nextLine()); //read save file
         }
 
         checkForDeleted(save);
-        dataOutputStream.writeInt(toRemove.size());
+        dataOutputStream.writeInt(toRemove.size()); //send number of files for deletion
 
         FileOutputStream fos = new FileOutputStream(save, true);
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 
-        listFiles(directory, bw); //scan directory and add non directory files to ArrayList files
+        listFiles(directory, bw);
         dataOutputStream.writeInt(filesArr.size()); //send number of sent files
 
         for (int i = 0; i < toRemove.size(); i++) {
-            dataOutputStream.writeUTF(toRemove.get(i).replace(directory, ""));
+            dataOutputStream.writeUTF(toRemove.get(i).replace(directory, "")); //send directory to remove
             dataOutputStream.flush();
         }
 
         for (int i = filesArr.size() - 1; i >= 0; i--) {
             File check = new File(filesArr.get(i).getAbsolutePath());
 
-            dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(directory, "")); //send relative path
+            dataOutputStream.writeUTF(filesArr.get(i).getAbsolutePath().replace(directory, "")); //send directory
             dataOutputStream.flush();
 
             if (!check.isDirectory()) {
@@ -49,6 +49,8 @@ public class Sender {
     }
 
     public void checkForDeleted(File save) throws IOException {
+        //if directory from save file doesnt exist anymore, remove it from list and add to ArrayList toRemove
+
         Scanner dirs = new Scanner(save);
         File tempFile = new File("TempFile.txt");
         BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
@@ -69,6 +71,9 @@ public class Sender {
     }
 
     public void listFiles(String startDir, BufferedWriter bw) throws IOException {
+        //list files in synced directory and add directories missing from save file
+        //to save file and Arraylist filesArr
+
         File dir = new File(startDir);
 
         File[] files = dir.listFiles();

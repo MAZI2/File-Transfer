@@ -5,22 +5,22 @@ import java.io.*;
 public class Receiver {
 
     public static void Receive(DataInputStream dataInputStream, String directory, BufferedWriter bw) throws Exception {
-        int delete = dataInputStream.readInt();
+        int delete = dataInputStream.readInt(); //number of files to be deleted
         int number = dataInputStream.readInt(); //number of files to be received
 
         for(int i = 0; i < delete; i++) {
-            File toDelete= new File(directory + dataInputStream.readUTF());
+            File toDelete= new File(directory + dataInputStream.readUTF()); //get directory to delete
             System.out.println("Deleting: " + toDelete.getName());
             toDelete.delete();
         }
 
         for(int i = 0; i < number; i++) {
-            String filePath = dataInputStream.readUTF();
+            String filePath = dataInputStream.readUTF(); //get directory to receive or create
 
-            if (dataInputStream.readUTF().equals("file")) {
+            if (dataInputStream.readUTF().equals("file")) { //if directory is a file, receive
                 receiveFile(dataInputStream, directory + filePath);
             } else {
-                File dir = new File(directory + filePath);
+                File dir = new File(directory + filePath); //if directory is a folder, create
                 if (!dir.exists()){
                     dir.mkdirs();
                 }
