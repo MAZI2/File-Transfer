@@ -27,7 +27,7 @@ public class Sender {
         listFiles(directory, bw);
         dataOutputStream.writeInt(filesArr.size()); //send number of sent files
 
-        for (int i = 0; i < toRemove.size(); i++) {
+        for (int i = toRemove.size() -1; i >= 0; i--) {
             dataOutputStream.writeUTF(toRemove.get(i).replace(directory, "")); //send directory to remove
             dataOutputStream.flush();
         }

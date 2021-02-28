@@ -11,19 +11,22 @@ public class Server {
     private static DataInputStream dataInputStream = null;
 
     public static void main(String[] args) throws IOException {
+        sync();
+    }
+    private static void sync() {
         try(ServerSocket serverSocket = new ServerSocket(5000)){ //listening to port:5000
             Socket clientSocket = serverSocket.accept();
 
             dataInputStream = new DataInputStream(clientSocket.getInputStream());
             dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
 
-            //SENDER PART
+            //SENDER
             File save = new File("ServerSave");
 
             Sender sender = new Sender();
             BufferedWriter bw = sender.Send(dataOutputStream, receivePath, save);
 
-            //RECEIVER PART
+            //RECEIVER
             Receiver.Receive(dataInputStream, receivePath, bw);
 
             dataInputStream.close();
@@ -33,5 +36,6 @@ public class Server {
         } catch (Exception e){
             e.printStackTrace();
         }
+        sync();
     }
 }

@@ -15,13 +15,13 @@ public class Client {
             dataInputStream = new DataInputStream(socket.getInputStream());
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
-            //SENDER PART
+            //SENDER
             File save = new File("ClientSave");
 
             Sender sender = new Sender();
             BufferedWriter bw = sender.Send(dataOutputStream, sendPath, save);
 
-            //RECEIVER PART
+            //RECEIVER
             Receiver.Receive(dataInputStream, sendPath, bw);
 
             dataInputStream.close();
