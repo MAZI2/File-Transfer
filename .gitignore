@@ -1,0 +1,17 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+Vue/client/node_modules
+Vue/client/.browserslistrc
+Vue/client/package-lock.json
+Vue/client/yarn.lock
+.mvn
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
