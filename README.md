@@ -1,5 +1,5 @@
 # Java LAN File Transfer webapp  
-### An example for Vue.js frontend with Java backend
+### An example for Vue.js frontend with Spring Boot Java backend
 ### Servlet based file sync example
 ## To do - discontinued
 - [X] Single file transfer
