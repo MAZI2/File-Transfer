@@ -16,7 +16,7 @@ public class Client {
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
             //SENDER
-            File save = new File("/home/matjaz/IdeaProjects/File transfer new workspace/File-transfer/dirs/ClientSave");
+            File save = new File("temp/ClientSave");
             save.createNewFile();
 
             Sender sender = new Sender();

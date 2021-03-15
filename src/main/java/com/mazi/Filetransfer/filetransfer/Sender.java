@@ -52,7 +52,7 @@ public class Sender {
         //if directory from save file doesnt exist anymore, remove it from list and add to ArrayList toRemove
 
         Scanner dirs = new Scanner(save);
-        File tempFile = new File("/home/matjaz/IdeaProjects/File transfer/dirs/TempFile" + save.getName());
+        File tempFile = new File("temp/TempFile" + save.getName());
         BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
 
         while (dirs.hasNextLine()) {

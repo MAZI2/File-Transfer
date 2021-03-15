@@ -5,8 +5,6 @@ import com.mazi.Filetransfer.filetransfer.Server;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -18,13 +16,14 @@ import java.util.stream.Stream;
 
 @RestController
 public class MainController {
-    private File console = new File("/home/matjaz/IdeaProjects/File transfer new workspace/File-transfer/dirs/console.txt");
+    private File console = new File("temp/console.txt");
     private static ArrayList<String> ipsList = new ArrayList<String>();
 
     @GetMapping("/Server")
     public String server() throws IOException {
+        console.createNewFile();
         Thread thread1 = new Thread(() -> Server.sync());
-        String read = readConsole("/home/matjaz/IdeaProjects/File transfer new workspace/File-transfer/dirs/console.txt");
+        String read = readConsole("temp/console.txt");
 
         if(console.exists()) {
             PrintWriter writer = new PrintWriter(console);

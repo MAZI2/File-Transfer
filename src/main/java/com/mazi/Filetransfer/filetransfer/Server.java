@@ -20,7 +20,7 @@ public class Server {
 
             //SENDER
 
-            File save = new File("/home/matjaz/IdeaProjects/File transfer new workspace/File-transfer/dirs/ServerSave");
+            File save = new File("temp/ServerSave");
             save.createNewFile();
 
             Sender sender = new Sender();
